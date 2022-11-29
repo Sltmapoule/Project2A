@@ -4,7 +4,10 @@ from scipy.fft import fft, fftfreq
 from scipy.signal import blackman
 import matplotlib.pyplot as plt
 import numpy as np
-
+import pyaudio
+import wave
+import scipy.io.wavfile as wav
+import math as m
 
 # b, a = signal.iirfilter(25, [2 * np.pi * 50, 2 * np.pi * 200], rs=60, btype='band', analog=True, ftype='cheby2')
 # w, h = signal.freqs(b, a, 1000)
@@ -47,25 +50,54 @@ import numpy as np
 # plt.show()
 
 def plot_response(fs, w, h, title):
-    "Utility function to plot response functions"
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.plot(0.5 * fs * w / np.pi, 20 * np.log10(np.abs(h)))
-    ax.set_ylim(-40, 5)
-    ax.set_xlim(0, 0.5 * fs)
-    ax.grid(True)
-    ax.set_xlabel('Frequency (Hz)')
-    ax.set_ylabel('Gain (dB)')
-    ax.set_title(title)
+   "Utility function to plot response functions"
+   fig = plt.figure()
+   ax = fig.add_subplot(111)
+   ax.plot(0.5 * fs * w / np.pi, 20 * np.log10(np.abs(h)))
+   ax.set_ylim(-40, 5)
+   ax.set_xlim(0, 0.5 * fs)
+   ax.grid(True)
+   ax.set_xlabel('Frequency (Hz)')
+   ax.set_ylabel('Gain (dB)')
+   ax.set_title(title)
 
 
 fs = 96000.0  # Sample rate, Hz
 band = [1000, 30000]  # Desired pass band, Hz
 trans_width = 260  # Width of transition from pass band to stop band, Hz
-numtaps = 50  # Size of the FIR filter.
+numtaps = 30  # Size of the FIR filter.
 edges = [0, band[0] - trans_width, band[0], band[1],
          band[1] + trans_width, 0.5 * fs]
 taps = remez(numtaps, edges, [0, 1, 0], Hz=fs)
 w, h = freqz(taps, [1], worN=2000)
-plot_response(fs, w, h, "Band-pass Filter")
-plt.show()
+
+
+# plot_response(fs, w, h, "Band-pass Filter")
+# plt.show()
+
+def signal_plot_tf():
+    fd, signal = wav.read("output.wav")
+    ts = np.abs((fft(signal))/80000)
+    dt = 1 / fd  # sampling interval
+    t = np.arange(0, 5, dt)
+    f = np.arange(0,1,1/80000)
+
+    fig = plt.figure()
+    axs = fig.add_subplot(211)
+    axs.set_title("Signal")
+    axs.plot(t, signal, color='C0')
+    axs.set_xlabel("Time")
+    axs.set_ylabel("Amplitude")
+
+    bxs = fig.add_subplot(212)
+    bxs.set_title("Signal")
+    bxs.plot(f, ts, color='m')
+    bxs.set_xlabel("Frequency")
+    bxs.set_ylabel("Module")
+    plt.show()
+
+
+signal_plot_tf()
+
+
+
