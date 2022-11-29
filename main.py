@@ -4,7 +4,7 @@ def make_window(theme):
     menu_def = [['&Application', ['E&xit']],
                 ['&Help', ['&About']]]
     right_click_menu_def = [[], ['Edit Me', 'Versions', 'Nothing', 'More Nothing', 'Exit']]
-    graph_right_click_menu_def = [[], ['Erase', 'Draw Line', 'Draw', ['Circle', 'Rectangle', 'Image'], 'Exit']]
+    graph_right_click_menu_def = [[],['Erase', 'Draw Line', 'Draw', ['Circle', 'Rectangle', 'Image'], 'Exit']]
 
     # Table Data
     data = [["John", 10], ["Jen", 5]]
@@ -15,7 +15,7 @@ def make_window(theme):
         # [sg.Menu(menu_def, key='-MENU-')],
         [sg.Text('Anything that requires user-input is in this tab!')],
         [sg.Input(key='-INPUT-')],
-        [sg.Slider(orientation='h', key='-SKIDER-'),
+        [sg.Slider(orientation='v', key='-SKIDER-'),
          sg.Image(data=sg.DEFAULT_BASE64_LOADING_GIF, enable_events=True, key='-GIF-IMAGE-'), ],
         [sg.Checkbox('Checkbox', default=True, k='-CB-')],
         [sg.Radio('Radio1', "RadioDemo", default=True, size=(10, 1), k='-R1-'),
@@ -141,14 +141,10 @@ def main():
             sg.execute_editor(__file__)
         elif event == 'Versions':
             sg.popup_scrolled(__file__, sg.get_versions(), keep_on_top=True, non_blocking=True)
-
     window.close()
     exit(0)
 
 
 if __name__ == '__main__':
     sg.theme('black')
-    sg.theme('dark red')
-    sg.theme('dark green 7')
-    # sg.theme('DefaultNoMoreNagging')
     main()
