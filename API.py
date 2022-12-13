@@ -3,23 +3,28 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import PySimpleGUI as sg
 import matplotlib
 import matplotlib.figure as fig
-import matplotlib.pyplot as plt
+
 matplotlib.use('TkAgg')
 
-
-fig1 = fig.Figure(figsize=(5, 4), dpi=100)
+input_sig = fig.Figure(figsize=(5, 4), dpi=100)
 t = np.arange(0, 3, .01)
-fig1.add_subplot().plot(t, 2 * np.sin(2 * np.pi * t)) # Ajouter les graphs ici
-fig2 = fig.Figure(figsize=(5, 4), dpi=100)
+input_sig.add_subplot().plot(t, 2 * np.sin(2 * np.pi * t))  # Ajouter les graphs ici
+input_spectre = fig.Figure(figsize=(5, 4), dpi=100)
+input_spectre.add_subplot().plot(t, 4 * np.cos(2 * np.pi * t))
 
-fig2.add_subplot().plot(t, 2 * np.sin(2 * np.pi * t))
+output_sig = fig.Figure(figsize=(5, 4), dpi=100)
+t = np.arange(0, 3, .01)
+output_sig.add_subplot().plot(t, 2 * np.sin(2 * np.pi * t))  # Ajouter les graphs ici
+output_spectre = fig.Figure(figsize=(5, 4), dpi=100)
+output_spectre.add_subplot().plot(t, 4 * np.cos(2 * np.pi * t))
+
 
 def draw_figure(canvas, figure):
     figure_canvas_agg = FigureCanvasTkAgg(figure, canvas)
-    figure_canvas_agg
     figure_canvas_agg.draw()
     figure_canvas_agg.get_tk_widget().pack(side='top', fill='both', expand=1)
     return figure_canvas_agg
+
 
 def make_window(theme):
     sg.theme(theme)
@@ -35,16 +40,14 @@ def make_window(theme):
     ]
 
     input_layout = [
-        [sg.Text('Plot test')],
-        [sg.Canvas(key='-CANVAS-')],
-        [sg.Button('Ok', k='okbtn')]
-        ]
+        [sg.Text('Input Signal'), sg.Text('Input spectre', justification='center', expand_x=True)],
+        [sg.Canvas(key='-INSIG-'), sg.Canvas(key='-INSP-')]
+    ]
 
-
-
-    output_layout = [[sg.Text("Popup Testing")],
-                     [sg.Button("Open Folder")],
-                     [sg.Button("Open File")]]
+    output_layout = [
+        [sg.Text('Output Signal'), sg.Text('Output Spectre', justification='center', expand_x=True)],
+        [sg.Canvas(key='-OUTSIG-'), sg.Canvas(key='-OUTSP-')]
+    ]
 
     filtre_layout = [[sg.Text("See how elements look under different themes by choosing a different theme here!")],
                      [sg.Listbox(values=sg.theme_list(),
@@ -77,10 +80,16 @@ def make_window(theme):
     #  window.maximize()
     return window
 
+
 def main():
     window = make_window(sg.theme())
+    draw_figure(window['-OUTSIG-'].TKCanvas, output_sig)
+    draw_figure(window['-OUTSP-'].TKCanvas, output_spectre)
+
     while True:
-        draw_figure(window['-CANVAS-'].TKCanvas, fig2)
+        fg = draw_figure(window['-INSIG-'].TKCanvas, input_sig)
+        fg2 = draw_figure(window['-INSP-'].TKCanvas, input_spectre)
+
         event, values = window.read(timeout=100)
         # keep an animation running so show things are happening
         if event not in (sg.TIMEOUT_EVENT, sg.WIN_CLOSED):
@@ -93,49 +102,17 @@ def main():
             break
         elif event == 'About':
             print("[LOG] Clicked About!")
-            sg.popup('PySimpleGUI Demo All Elements',
-                     'Right click anywhere to see right click menu',
-                     'Visit each of the tabs to see available elements',
-                     'Output of event and values can be see in Output tab',
-                     'The event and values dictionary is printed after every event', keep_on_top=True)
-        elif event == 'Popup':
-            print("[LOG] Clicked Popup Button!")
-            sg.popup("You pressed a button!", keep_on_top=True)
-            print("[LOG] Dismissing Popup!")
-        elif event == 'Test Progress bar':
-            print("[LOG] Clicked Test Progress Bar!")
-            progress_bar = window['-PROGRESS BAR-']
-            for i in range(100):
-                print("[LOG] Updating progress bar by 1 step (" + str(i) + ")")
-                progress_bar.update(current_count=i + 1)
-            print("[LOG] Progress bar complete!")
-        elif event == "-GRAPH-":
-            graph = window['-GRAPH-']  # type: sg.Graph
-            graph.draw_circle(values['-GRAPH-'], fill_color='yellow', radius=20)
-            print("[LOG] Circle drawn at: " + str(values['-GRAPH-']))
-        elif event == "Open Folder":
-            print("[LOG] Clicked Open Folder!")
-            folder_or_file = sg.popup_get_folder('Choose your folder', keep_on_top=True)
-            sg.popup("You chose: " + str(folder_or_file), keep_on_top=True)
-            print("[LOG] User chose folder: " + str(folder_or_file))
-        elif event == "Open File":
-            print("[LOG] Clicked Open File!")
-            folder_or_file = sg.popup_get_file('Choose your file', keep_on_top=True)
-            sg.popup("You chose: " + str(folder_or_file), keep_on_top=True)
-            print("[LOG] User chose file: " + str(folder_or_file))
-        elif event == "Set Theme":
-            print("[LOG] Clicked Set Theme!")
-            theme_chosen = values['-THEME LISTBOX-'][0]
-            print("[LOG] User Chose Theme: " + str(theme_chosen))
-            window.close()
-            window = make_window(theme_chosen)
+            sg.popup('Project 2A ENSEA',
+                     'Trombone modifying sound API ',
+                     keep_on_top=True)
         elif event == 'Edit Me':
             sg.execute_editor(__file__)
         elif event == 'Versions':
             sg.popup_scrolled(__file__, sg.get_versions(), keep_on_top=True, non_blocking=True)
+        fg.get_tk_widget().pack_forget()
+        fg2.get_tk_widget().pack_forget()
     window.close()
     exit(0)
-
 
 
 if __name__ == '__main__':
